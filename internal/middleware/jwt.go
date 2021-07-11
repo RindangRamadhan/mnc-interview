@@ -10,7 +10,6 @@ import (
 	"github.com/RindangRamadhan/mnc-interview/internal/helper"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/mux"
-	"gitlab.com/pt-mai/maihelper/mailog"
 )
 
 var unlessPath = []string{
@@ -80,7 +79,7 @@ func (m *maiMiddleware) JWT(*mux.Router) mux.MiddlewareFunc {
 
 				cookie, err := r.Cookie(os.Getenv("AUTH_COOKIE_NAME"))
 				if err != nil {
-					log.Println("Error read auth cookie name :", mailog.Error(err))
+					log.Println("Error read auth cookie name :", err.Error())
 					helper.HttpHandler.ResponseJSON(rw, &helper.ResponseJSON{
 						HTTPCode: http.StatusUnauthorized,
 						Status:   "error",
@@ -101,7 +100,7 @@ func (m *maiMiddleware) JWT(*mux.Router) mux.MiddlewareFunc {
 				})
 
 				if err != nil {
-					log.Println("Error parse token :", mailog.Error(err))
+					log.Println("Error parse token :", err.Error())
 					http.Error(rw, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 					return
 				}
