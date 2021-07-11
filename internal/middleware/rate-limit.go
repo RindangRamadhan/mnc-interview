@@ -10,8 +10,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/RindangRamadhan/mnc-interview/internal/helper"
 	"github.com/gorilla/mux"
-	"gitlab.com/pt-mai/maihelper"
 	"golang.org/x/time/rate"
 )
 
@@ -76,8 +76,12 @@ func (_m *maiMiddleware) Limit(ro *mux.Router) mux.MiddlewareFunc {
 			// Limiter
 			limiter := getVisitor(reqEncode)
 
-			if !limiter.Allow() && !IsUnlessWebApi {
-				maihelper.GrpcClient.MaiHttpResponseHandler(w, http.StatusTooManyRequests, "error", http.StatusText(http.StatusTooManyRequests), nil)
+			if !limiter.Allow() {
+				helper.HttpHandler.ResponseJSON(w, &helper.ResponseJSON{
+					HTTPCode: http.StatusTooManyRequests,
+					Status:   "error",
+					Message:  http.StatusText(http.StatusTooManyRequests),
+				})
 				return
 			}
 

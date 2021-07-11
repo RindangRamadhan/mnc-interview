@@ -7,9 +7,9 @@ import (
 	"os"
 	"regexp"
 
+	"github.com/RindangRamadhan/mnc-interview/internal/helper"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/mux"
-	"gitlab.com/pt-mai/maihelper"
 	"gitlab.com/pt-mai/maihelper/mailog"
 )
 
@@ -40,7 +40,11 @@ func (m *maiMiddleware) JWT(*mux.Router) mux.MiddlewareFunc {
 				pathTpl, err := mux.CurrentRoute(r).GetPathTemplate()
 				if err != nil {
 					log.Println("Error get template router")
-					maihelper.GrpcClient.MaiHttpResponseHandler(rw, http.StatusInternalServerError, "error", http.StatusText(http.StatusInternalServerError), nil)
+					helper.HttpHandler.ResponseJSON(rw, &helper.ResponseJSON{
+						HTTPCode: http.StatusInternalServerError,
+						Status:   "error",
+						Message:  http.StatusText(http.StatusInternalServerError),
+					})
 					return
 				}
 
@@ -77,7 +81,11 @@ func (m *maiMiddleware) JWT(*mux.Router) mux.MiddlewareFunc {
 				cookie, err := r.Cookie(os.Getenv("AUTH_COOKIE_NAME"))
 				if err != nil {
 					log.Println("Error read auth cookie name :", mailog.Error(err))
-					maihelper.GrpcClient.MaiHttpResponseHandler(rw, http.StatusUnauthorized, "error", http.StatusText(http.StatusUnauthorized), nil)
+					helper.HttpHandler.ResponseJSON(rw, &helper.ResponseJSON{
+						HTTPCode: http.StatusUnauthorized,
+						Status:   "error",
+						Message:  http.StatusText(http.StatusUnauthorized),
+					})
 					return
 				}
 
@@ -99,13 +107,21 @@ func (m *maiMiddleware) JWT(*mux.Router) mux.MiddlewareFunc {
 				}
 
 				if token == nil {
-					maihelper.GrpcClient.MaiHttpResponseHandler(rw, http.StatusUnauthorized, "error", http.StatusText(http.StatusUnauthorized), nil)
+					helper.HttpHandler.ResponseJSON(rw, &helper.ResponseJSON{
+						HTTPCode: http.StatusUnauthorized,
+						Status:   "error",
+						Message:  http.StatusText(http.StatusUnauthorized),
+					})
 					return
 				}
 
 				claims, ok := token.Claims.(jwt.MapClaims)
 				if !ok || !token.Valid {
-					maihelper.GrpcClient.MaiHttpResponseHandler(rw, http.StatusUnauthorized, "error", http.StatusText(http.StatusUnauthorized), nil)
+					helper.HttpHandler.ResponseJSON(rw, &helper.ResponseJSON{
+						HTTPCode: http.StatusUnauthorized,
+						Status:   "error",
+						Message:  http.StatusText(http.StatusUnauthorized),
+					})
 					return
 				}
 

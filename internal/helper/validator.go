@@ -7,7 +7,9 @@ import (
 
 	"github.com/go-playground/locales/id"
 	"github.com/go-playground/validator/v10"
-	"gitlab.com/pt-mai/maihelper"
+	"google.golang.org/genproto/googleapis/rpc/errdetails"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	ut "github.com/go-playground/universal-translator"
 	id_translations "github.com/go-playground/validator/v10/translations/id"
@@ -49,7 +51,17 @@ func Validation(req interface{}) error {
 			se = append(se, f)
 		}
 
-		return maihelper.GrpcServer.MaiErrorDetail("validation", "Please check your payload request", se)
+		st := status.New(codes.Unknown, "validation")
+		v := &errdetails.DebugInfo{
+			StackEntries: se,
+			Detail:       "Please check your payload request",
+		}
+		ds, errD := st.WithDetails(v)
+
+		if errD != nil {
+			return st.Err()
+		}
+		return ds.Err()
 	}
 
 	return nil

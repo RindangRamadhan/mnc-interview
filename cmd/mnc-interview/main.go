@@ -6,19 +6,11 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/RindangRamadhan/mnc-interview/internal/db"
 	"github.com/RindangRamadhan/mnc-interview/internal/router"
-	"github.com/RindangRamadhan/mnc-interview/internal/tracing"
 	"github.com/joho/godotenv"
 
 	_ "github.com/RindangRamadhan/mnc-interview/internal/modules"
 )
-
-func Init() {
-	db.Postgre.Init()
-	db.Mongo.Init()
-	tracing.Init()
-}
 
 func main() {
 	var err error
@@ -41,10 +33,10 @@ func main() {
 	// 	log.Fatal("There was error when connecting to database.", err)
 	// }
 
-	fmt.Printf("Listing for requests at %s:%s", os.Getenv("HOST"), os.Getenv("PORT"))
+	fmt.Printf("Listing for requests at %s:%s", os.Getenv("SERVICE_HOST"), os.Getenv("SERVICE_PORT"))
 
 	err = http.ListenAndServe(
-		":"+os.Getenv("PORT"),
+		":"+os.Getenv("SERVICE_PORT"),
 		router.Router,
 	)
 

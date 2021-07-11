@@ -35,32 +35,39 @@ func MiddlewareInit() {
 	// Router.Use(middleware.MaiMiddleware.Limit(Router))
 }
 
-func RouteApply(routes []Route) {
+func RouteApply(routes []Route, pathPrefix string) {
 	for _, route := range routes {
 		handler := route.HandlerFunc
+		/*
+			if os.Getenv("GO_ENV") == "development" {
+				handler = middleware.MaiMiddleware.Logger(os.Stderr, route.HandlerFunc)
+			} else {
+				handler = route.HandlerFunc
+			}*/
 
-		Router.
-			Methods(
-				route.Methods...,
-			).Path(
-			route.Pattern,
-		).Name(
-			route.Name,
-		).Handler(
-			handler,
-		)
-
-		// Prepare data route for mapping routers user management needs
-		if os.Getenv("GO_ENV") == "development" {
-			var methods string
-			if len(route.Methods) > 0 {
-				methods = route.Methods[0]
-			}
-			DataRouters = append(DataRouters, InsertRoutersT{
-				Name:    route.Name,
-				Methods: methods,
-				Pattern: route.Pattern,
-			})
+		if pathPrefix != "" {
+			Router.
+				PathPrefix(pathPrefix).
+				Methods(
+					route.Methods...,
+				).Path(
+				route.Pattern,
+			). /*Name(
+					route.Name,
+				).*/Handler(
+					handler,
+				)
+		} else {
+			Router.
+				Methods(
+					route.Methods...,
+				).Path(
+				route.Pattern,
+			). /*Name(
+					route.Name,
+				).*/Handler(
+					handler,
+				)
 		}
 	}
 }
